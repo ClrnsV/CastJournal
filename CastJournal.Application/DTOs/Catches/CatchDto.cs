@@ -24,7 +24,6 @@ public class CatchDto
     public string? Notes { get; set; }
     public string? WeatherConditions { get; set; }
     public bool IsPublic { get; set; }
-
     public DateTime CreatedAt { get; set; }
-    public List<CatchMediaDto>? Media { get; set; }
+    public List<CatchMediaDto> Media { get; set; } = new();
 }

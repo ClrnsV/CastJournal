@@ -21,6 +21,9 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Species> Species { get; set; }
     public DbSet<FishingLocation> FishingLocations { get; set; }
     public DbSet<CatchMedia> CatchMedia { get; set; }
+    public DbSet<RevokedToken> RevokedTokens { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<ContentCategory> ContentCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="QuestPDF" Version="2026.6.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,14 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Locations\" />
-    <Folder Include="DTOs\Auth\" />
-    <Folder Include="DTOs\Media\" />
-    <Folder Include="DTOs\Species\" />
     <Folder Include="Features\" />
     <Folder Include="Common\" />
     <Folder Include="Validators\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

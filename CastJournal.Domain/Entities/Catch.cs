@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CastJournal.Domain.Entities.Base;
+﻿using CastJournal.Domain.Entities.Base;
 
 namespace CastJournal.Domain.Entities;
 
@@ -15,15 +9,19 @@ public class Catch : BaseEntity, IAuditableEntity
     public Guid? LocationId { get; set; }
 
     public DateTime CatchDate { get; set; }
-    public decimal? Weight { get; set; }        // in kg or lbs
-    public decimal? Length { get; set; }        // in cm or inches
+    public decimal? Weight { get; set; }
+    public decimal? Length { get; set; }
     public string? GearUsed { get; set; }
     public string? BaitUsed { get; set; }
     public string? FishingMethod { get; set; }
     public string? Notes { get; set; }
     public string? WeatherConditions { get; set; }
-
     public bool IsPublic { get; set; } = false;
+
+    // Soft Delete
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
+    public string? DeletedBy { get; set; }
 
     // Navigation Properties
     public User? User { get; set; }

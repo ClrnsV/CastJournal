@@ -10,8 +10,9 @@ namespace CastJournal.Application.Interfaces.Repositories;
 public interface ISpeciesRepository
 {
     Task<Species?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Species>> GetAllAsync();
-    Task AddAsync(Species entity);
-    void Update(Species entity);
-    void Delete(Species entity);
+    Task<IEnumerable<Species>> GetAllAsync(bool onlyApproved = true);
+    Task AddAsync(Species species);
+    void Update(Species species);
+    void Delete(Species species);
+    Task SaveChangesAsync();
 }

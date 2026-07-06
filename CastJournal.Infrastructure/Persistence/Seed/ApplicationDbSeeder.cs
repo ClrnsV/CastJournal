@@ -14,7 +14,6 @@ public static class ApplicationDbSeeder
     {
         await SeedRolesAsync(roleManager);
         await SeedSpeciesAsync(context);
-        await SeedTestUserAndCatchesAsync(context, userManager);
         await SeedAdminUserAsync(userManager, configuration);
         await SeedContentCategoriesAsync(context); 
         await context.SaveChangesAsync();

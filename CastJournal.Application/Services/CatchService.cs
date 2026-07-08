@@ -3,6 +3,7 @@ using CastJournal.Application.DTOs;
 using CastJournal.Application.DTOs.Catches;
 using CastJournal.Application.Interfaces.Repositories;
 using CastJournal.Application.Interfaces.Services;
+using CastJournal.Common.Exceptions;
 using CastJournal.Domain.Entities;
 using CastJournal.Domain.Enums;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,17 @@ public class CatchService : ICatchService
 
     public async Task<CatchDto> CreateCatchAsync(CreateCatchDto dto, string userId)
     {
+        var speciesExists = await _catchRepository.SpeciesExistsAsync(dto.SpeciesId);
+        if (!speciesExists)
+            throw new NotFoundException($"Species with ID '{dto.SpeciesId}' was not found.");
+
+        if (dto.LocationId.HasValue)
+        {
+            var locationExists = await _catchRepository.LocationExistsAsync(dto.LocationId.Value);
+            if (!locationExists)
+                throw new NotFoundException($"Location with ID '{dto.LocationId}' was not found.");
+        }
+
         var catchEntity = _mapper.Map<Catch>(dto);
         catchEntity.UserId = userId;
         catchEntity.CatchDate = dto.CatchDate == default ? DateTime.UtcNow : dto.CatchDate;
@@ -62,6 +74,17 @@ public class CatchService : ICatchService
         var catchEntity = await _catchRepository.GetByIdAsync(id);
         if (catchEntity == null || catchEntity.UserId != userId)
             return false;
+
+        var speciesExists = await _catchRepository.SpeciesExistsAsync(dto.SpeciesId);
+        if (!speciesExists)
+            throw new NotFoundException($"Species with ID '{dto.SpeciesId}' was not found.");
+
+        if (dto.LocationId.HasValue)
+        {
+            var locationExists = await _catchRepository.LocationExistsAsync(dto.LocationId.Value);
+            if (!locationExists)
+                throw new NotFoundException($"Location with ID '{dto.LocationId}' was not found.");
+        }
 
         // Update properties
         _mapper.Map(dto, catchEntity);
@@ -140,6 +163,21 @@ public class CatchService : ICatchService
             TotalCount = totalCount,
             Page = filter.Page ?? 1,
             PageSize = filter.PageSize ?? 20
+        };
+    }
+    public async Task<PagedResult<CatchDto>> GetPublicFeedAsync(CatchFeedFilterDto filter)
+    {
+        var page = filter.Page ?? 1;
+        var pageSize = filter.PageSize ?? 20;
+
+        var(items, totalCount) = await _catchRepository.GetPublicFeedAsync(filter.UserId, page, pageSize);
+
+        return new PagedResult<CatchDto>
+        {
+            Items = _mapper.Map<IEnumerable<CatchDto>>(items),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
         };
     }
 }

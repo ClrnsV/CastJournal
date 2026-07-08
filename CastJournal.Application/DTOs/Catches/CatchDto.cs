@@ -10,6 +10,8 @@ public class CatchDto
 {
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty;
+    public string? UserFullName { get; set; }   
+    public string? UserAvatarUrl { get; set; }
     public Guid SpeciesId { get; set; }
     public string? SpeciesName { get; set; }
     public Guid? LocationId { get; set; }

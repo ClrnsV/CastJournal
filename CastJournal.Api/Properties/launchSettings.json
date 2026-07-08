@@ -18,6 +18,18 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "https-prod-test": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7264;http://localhost:5162",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "AdminSeed__Password": "SomeTestPassword!23",
+        "AdminSeed__Email": "admin@castjournal.com",
+        "JwtSettings__Secret": "PasteTheSameLongRandomSecretYouUseInDevOrANewOne"
+      }
     }
   }
 }

@@ -27,6 +27,11 @@ public class LocationService : ILocationService
         var locations = await _locationRepository.GetAllByUserIdAsync(userId);
         return _mapper.Map<IEnumerable<LocationDto>>(locations);
     }
+    public async Task<IEnumerable<LocationDto>> GetPublicLocationsAsync()
+    {
+        var locations = await _locationRepository.GetPublicLocationsAsync();
+        return _mapper.Map<IEnumerable<LocationDto>>(locations);
+    }
 
     public async Task<LocationDto?> GetLocationByIdAsync(Guid id, string userId)
     {

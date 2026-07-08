@@ -4,6 +4,8 @@ using CastJournal.Application.Interfaces.Services;
 using CastJournal.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using CastJournal.Domain.Enums;
+
 
 namespace CastJournal.Infrastructure.Services;
 
@@ -11,11 +13,13 @@ public class UserManagementService : IUserManagementService
 {
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly INotificationService _notificationService;
 
-    public UserManagementService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public UserManagementService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, INotificationService notificationService)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _notificationService = notificationService;
     }
 
     public async Task<PagedResult<UserSummaryDto>> GetUsersAsync(UserFilterDto filter)
@@ -134,18 +138,39 @@ public class UserManagementService : IUserManagementService
         return ServiceResult.Success();
     }
 
-    public async Task<ServiceResult> SetActiveStatusAsync(string id, bool isActive)
+    public async Task<ServiceResult> SetActiveStatusAsync(string id, bool isActive, string currentAdminId)
     {
+        if (!isActive && id == currentAdminId)
+            return ServiceResult.Failure(new[] { "You cannot deactivate your own account." });
+
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
             return ServiceResult.Failure(new[] { "User not found." });
 
+        if (!isActive && await IsLastActiveAdminAsync(id))
+            return ServiceResult.Failure(new[] { "Cannot deactivate the last remaining active Admin." });
+
         user.IsActive = isActive;
         var result = await _userManager.UpdateAsync(user);
 
-        return result.Succeeded
-            ? ServiceResult.Success()
-            : ServiceResult.Failure(result.Errors.Select(e => e.Description));
+        if (!result.Succeeded)
+            return ServiceResult.Failure(result.Errors.Select(e => e.Description));
+
+        await _notificationService.CreateNotificationAsync(
+            user.Id,
+            isActive ? NotificationType.AccountReactivated : NotificationType.AccountDeactivated,
+            isActive ? "Account Reactivated" : "Account Deactivated",
+            isActive
+                ? "Your account has been reactivated. You can now log in normally."
+                : "Your account has been deactivated by an administrator. Contact support if you believe this is a mistake.");
+
+        return ServiceResult.Success();
+    }
+
+    private async Task<bool> IsLastActiveAdminAsync(string excludingUserId)
+    {
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        return admins.Count(a => a.IsActive && a.Id != excludingUserId) == 0;
     }
 
     private async Task<UserSummaryDto> MapToSummaryAsync(User user)

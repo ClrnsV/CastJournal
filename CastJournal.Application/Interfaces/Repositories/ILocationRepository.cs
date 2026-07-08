@@ -11,6 +11,8 @@ public interface ILocationRepository
 {
     Task<FishingLocation?> GetByIdAsync(Guid id);
     Task<IEnumerable<FishingLocation>> GetAllByUserIdAsync(string userId);
+    Task<IEnumerable<FishingLocation>> GetPublicLocationsAsync();
+
     Task AddAsync(FishingLocation location);
     void Update(FishingLocation location);
     void Delete(FishingLocation location, string deletedBy);

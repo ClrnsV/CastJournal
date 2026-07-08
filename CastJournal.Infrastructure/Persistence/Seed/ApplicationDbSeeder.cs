@@ -9,16 +9,25 @@ namespace CastJournal.Infrastructure.Persistence.Seed;
 
 public static class ApplicationDbSeeder
 {
-    public static async Task SeedAsync(ApplicationDbContext context, RoleManager<IdentityRole> roleManager,
-        UserManager<User> userManager, IConfiguration configuration)
+    // Runs in every environment, including production.Roles, the admin account,
+    // species, and content categories are all things a live app needs to function at all.
+    public static async Task SeedEssentialDataAsync(ApplicationDbContext context, RoleManager<IdentityRole> roleManager,
+          UserManager<User> userManager, IConfiguration configuration)
     {
         await SeedRolesAsync(roleManager);
         await SeedSpeciesAsync(context);
         await SeedAdminUserAsync(userManager, configuration);
-        await SeedContentCategoriesAsync(context); 
+        await SeedContentCategoriesAsync(context);
+        await SeedLocationsAsync(context, userManager, configuration);
         await context.SaveChangesAsync();
     }
-
+    // Dev-only convenience data — a fake test user with sample catches for local testing.
+    // Never call this in Production; it plants a throwaway account with no real password checks intended for prod use.
+    public static async Task SeedDevelopmentDataAsync(ApplicationDbContext context, UserManager<User> userManager)
+    {
+        await SeedTestUserAndCatchesAsync(context, userManager);
+        await context.SaveChangesAsync();
+    }
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
         foreach (var role in new[] { "Admin", "User" })
@@ -34,7 +43,9 @@ public static class ApplicationDbSeeder
         var adminPassword = configuration["AdminSeed:Password"]
             ?? throw new InvalidOperationException("AdminSeed:Password is not configured.");
 
+        // Check both email AND username — Identity enforces uniqueness on both
         if (await userManager.FindByEmailAsync(adminEmail) != null) return;
+        if (await userManager.FindByNameAsync("admin") != null) return;
 
         var admin = new User
         {
@@ -70,7 +81,28 @@ public static class ApplicationDbSeeder
 
         await context.Species.AddRangeAsync(species);
     }
+    private static async Task SeedLocationsAsync(ApplicationDbContext context, UserManager<User> userManager, IConfiguration configuration)
+    {
+        if (await context.FishingLocations.AnyAsync()) return;
 
+        var adminEmail = configuration["AdminSeed:Email"] ?? "admin@castjournal.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null) return; // admin not created yet; skip for now
+
+        var location = new FishingLocation
+        {
+            Id = Guid.NewGuid(),
+            Name = "Default Lake",
+            Description = "Seeded default fishing location.",
+            Latitude = 8.4542,
+            Longitude = 124.6319,
+            WaterType = WaterType.Freshwater,
+            IsPublic = true,
+            UserId = adminUser.Id
+        };
+
+        await context.FishingLocations.AddAsync(location);
+    }
     private static async Task SeedTestUserAndCatchesAsync(ApplicationDbContext context, UserManager<User> userManager)
     {
         const string testUserId = "test-user-123";

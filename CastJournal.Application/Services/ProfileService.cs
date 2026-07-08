@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CastJournal.Application.DTOs.Profile;
+using CastJournal.Application.Interfaces.Repositories;
 using CastJournal.Application.Interfaces.Services;
 using CastJournal.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -10,12 +11,14 @@ public class ProfileService : IProfileService
 {
     private readonly UserManager<User> _userManager;
     private readonly IFileStorageService _fileStorageService;
+    private readonly ICatchRepository _catchRepository;
     private readonly IMapper _mapper;
 
-    public ProfileService(UserManager<User> userManager, IFileStorageService fileStorageService, IMapper mapper)
+    public ProfileService(UserManager<User> userManager, IFileStorageService fileStorageService, ICatchRepository catchRepository, IMapper mapper)
     {
         _userManager = userManager;
         _fileStorageService = fileStorageService;
+        _catchRepository = catchRepository;
         _mapper = mapper;
     }
 
@@ -56,5 +59,15 @@ public class ProfileService : IProfileService
         if (!result.Succeeded) return null;
 
         return _mapper.Map<ProfileDto>(user);
+    }
+    public async Task<PublicProfileDto?> GetPublicProfileAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return null;
+
+        var publicProfile = _mapper.Map<PublicProfileDto>(user);
+        publicProfile.PublicCatchCount = await _catchRepository.CountPublicCatchesByUserIdAsync(userId);
+
+        return publicProfile;
     }
 }

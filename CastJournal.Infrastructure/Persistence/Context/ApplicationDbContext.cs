@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<RevokedToken> RevokedTokens { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<ContentCategory> ContentCategories { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

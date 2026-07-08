@@ -9,5 +9,5 @@ public interface IUserManagementService
     Task<UserSummaryDto?> GetUserByIdAsync(string id);
     Task<(ServiceResult Result, UserSummaryDto? User)> CreateUserAsync(CreateUserDto dto);
     Task<ServiceResult> UpdateUserAsync(string id, UpdateUserDto dto);
-    Task<ServiceResult> SetActiveStatusAsync(string id, bool isActive);
+    Task<ServiceResult> SetActiveStatusAsync(string id, bool isActive, string currentAdminId);
 }

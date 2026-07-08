@@ -2,6 +2,7 @@
 using CastJournal.Application.DTOs;
 using CastJournal.Application.DTOs.Catches;
 using CastJournal.Application.DTOs.Locations;
+using CastJournal.Application.DTOs.Notifications;
 using CastJournal.Application.DTOs.Profile;
 using CastJournal.Application.DTOs.Species;
 using CastJournal.Domain.Entities;
@@ -21,6 +22,8 @@ public class MappingProfile : Profile
     {
         // Catch Mappings
         CreateMap<Catch, CatchDto>()
+            .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+            .ForMember(dest => dest.UserAvatarUrl, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarUrl : null))
             .ForMember(dest => dest.SpeciesName, opt => opt.MapFrom(src => src.Species != null ? src.Species.CommonName : null))
             .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Location != null ? src.Location.Name : null));
         CreateMap<CreateCatchDto, Catch>()
@@ -46,6 +49,11 @@ public class MappingProfile : Profile
 
         //Profile Mappings
         CreateMap<User, ProfileDto>();
+        CreateMap<User, PublicProfileDto>()
+            .ForMember(dest => dest.MemberSince, opt => opt.MapFrom(src => src.CreatedAt));
+
+        // Notification Mappings
+        CreateMap<Notification, NotificationDto>();
 
 
         // Add more mappings when creating more DTOs laterrr

@@ -1,11 +1,11 @@
 ﻿using CastJournal.Application;
+using CastJournal.Domain.Entities;
 using CastJournal.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using CastJournal.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,8 +123,31 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Seeding runs in every environment — production needs roles, an admin account,
+// and reference data (species, content categories) just as much as local dev does.
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CastJournal.Infrastructure.Persistence.Context.ApplicationDbContext>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CastJournal.Domain.Entities.User>>();
+
+    // Applies any pending EF Core migrations automatically on startup —
+    // needed since we won't have local Package Manager Console access to the hosted DB.
+    await context.Database.MigrateAsync();
+
+    await CastJournal.Infrastructure.Persistence.Seed.ApplicationDbSeeder.SeedEssentialDataAsync(context, roleManager, userManager, app.Configuration);
+
+    if (app.Environment.IsDevelopment())
+    {
+        await CastJournal.Infrastructure.Persistence.Seed.ApplicationDbSeeder.SeedDevelopmentDataAsync(context, userManager);
+    }
+}
+
 // Configure pipeline
-if (app.Environment.IsDevelopment())
+// Configure pipeline
+var enableSwagger = app.Configuration.GetValue<bool>("SwaggerSettings:EnableSwagger", false);
+
+if (app.Environment.IsDevelopment() || enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -139,18 +162,12 @@ if (app.Environment.IsDevelopment())
         }
         await next();
     });
-
-    // Seed Data
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<CastJournal.Infrastructure.Persistence.Context.ApplicationDbContext>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CastJournal.Domain.Entities.User>>();
-    await CastJournal.Infrastructure.Persistence.Seed.ApplicationDbSeeder.SeedAsync(context, roleManager, userManager, app.Configuration);
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseStaticFiles();
+app.UseMiddleware<CastJournal.Api.Middleware.ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 
 app.UseAuthorization();

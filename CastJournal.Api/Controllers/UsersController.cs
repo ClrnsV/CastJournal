@@ -73,24 +73,23 @@ public class UsersController : ControllerBase
     [HttpPatch("{id}/deactivate")]
     public async Task<IActionResult> Deactivate(string id)
     {
-        var result = await _userManagementService.SetActiveStatusAsync(id, false);
+        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await _userManagementService.SetActiveStatusAsync(id, false, adminId!);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
-        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var adminEmail = User.FindFirstValue(ClaimTypes.Email);
         await _auditService.LogAsync(adminId, adminEmail, AuditAction.UserDeactivated, "User", id, ipAddress: GetClientIp());
 
         return NoContent();
     }
 
-    // PATCH api/users/{id}/reactivate
     [HttpPatch("{id}/reactivate")]
     public async Task<IActionResult> Reactivate(string id)
     {
-        var result = await _userManagementService.SetActiveStatusAsync(id, true);
+        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await _userManagementService.SetActiveStatusAsync(id, true, adminId!);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
-        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var adminEmail = User.FindFirstValue(ClaimTypes.Email);
         await _auditService.LogAsync(adminId, adminEmail, AuditAction.UserReactivated, "User", id, ipAddress: GetClientIp());
 

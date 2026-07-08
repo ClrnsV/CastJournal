@@ -31,6 +31,13 @@ public class LocationRepository : ILocationRepository
             .OrderBy(l => l.Name)
             .ToListAsync();
     }
+    public async Task<IEnumerable<FishingLocation>> GetPublicLocationsAsync()
+    {
+        return await _context.FishingLocations
+            .Where(l => l.IsPublic)
+            .OrderBy(l => l.Name)
+            .ToListAsync();
+    }
 
     public async Task AddAsync(FishingLocation location)
     {
@@ -54,4 +61,5 @@ public class LocationRepository : ILocationRepository
     {
         await _context.SaveChangesAsync();
     }
+
 }

@@ -5,16 +5,19 @@ using CastJournal.Domain.Entities;
 using CastJournal.Domain.Enums;
 using CastJournal.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CastJournal.Infrastructure.Services;
 
 public class AuditService : IAuditService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<AuditService> _logger;
 
-    public AuditService(ApplicationDbContext context)
+    public AuditService(ApplicationDbContext context, ILogger<AuditService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task LogAsync(string? userId, string? userEmail, AuditAction action,
@@ -31,15 +34,15 @@ public class AuditService : IAuditService
             IpAddress = ipAddress
         });
 
-        // Audit writes should never block or crash the request that triggered them.
         try
         {
             await _context.SaveChangesAsync();
         }
-        catch
+        catch (Exception ex)
         {
-            // Swallow intentionally — a failed audit write shouldn't fail the user's actual action.
-            // Worth wiring to a real logger (ILogger<AuditService>) once you have centralized logging.
+            // Audit writes should never block or crash the request that triggered them —
+            // but we should still know when this fails.
+            _logger.LogError(ex, "Failed to write audit log for action {Action} by user {UserId}", action, userId);
         }
     }
 

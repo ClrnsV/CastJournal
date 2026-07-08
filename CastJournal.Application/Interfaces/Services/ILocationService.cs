@@ -10,6 +10,8 @@ namespace CastJournal.Application.Interfaces.Services;
 public interface ILocationService
 {
     Task<IEnumerable<LocationDto>> GetUserLocationsAsync(string userId);
+    Task<IEnumerable<LocationDto>> GetPublicLocationsAsync();
+
     Task<LocationDto?> GetLocationByIdAsync(Guid id, string userId);
     Task<LocationDto> CreateLocationAsync(CreateLocationDto dto, string userId);
     Task<LocationDto> UpdateLocationAsync(Guid id, CreateLocationDto dto, string userId);

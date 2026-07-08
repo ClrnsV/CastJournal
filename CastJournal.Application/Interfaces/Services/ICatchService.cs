@@ -20,4 +20,6 @@ public interface ICatchService
     Task<IEnumerable<CatchMediaDto>> GetCatchMediaAsync(Guid catchId, string userId);
     Task<bool> DeleteMediaAsync(Guid mediaId, string userId);
     Task<PagedResult<CatchDto>> SearchCatchesAsync(string userId, CatchFilterDto filter);
+    Task<PagedResult<CatchDto>> GetPublicFeedAsync(CatchFeedFilterDto filter);
+
 }

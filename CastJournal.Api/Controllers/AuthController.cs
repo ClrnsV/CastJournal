@@ -52,9 +52,24 @@ public class AuthController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
 
-        if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+        if (user == null)
         {
             await _auditService.LogAsync(null, dto.Email, AuditAction.LoginFailed,
+                details: "Invalid email or password", ipAddress: GetClientIp());
+            return Unauthorized("Invalid email or password");
+        }
+
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            await _auditService.LogAsync(user.Id, user.Email, AuditAction.LoginFailed,
+                details: "Account locked out due to repeated failed login attempts", ipAddress: GetClientIp());
+            return Unauthorized("This account is temporarily locked due to repeated failed login attempts. Please try again later.");
+        }
+
+        if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+        {
+            await _userManager.AccessFailedAsync(user);
+            await _auditService.LogAsync(user.Id, user.Email, AuditAction.LoginFailed,
                 details: "Invalid email or password", ipAddress: GetClientIp());
             return Unauthorized("Invalid email or password");
         }
@@ -66,6 +81,7 @@ public class AuthController : ControllerBase
             return Unauthorized("This account has been deactivated. Please contact an administrator.");
         }
 
+        await _userManager.ResetAccessFailedCountAsync(user);
         user.LastLoginAt = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
         await _auditService.LogAsync(user.Id, user.Email, AuditAction.Login, ipAddress: GetClientIp());

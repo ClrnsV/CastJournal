@@ -94,6 +94,10 @@ public class BackupService : IBackupService
         return System.Text.Encoding.UTF8.GetBytes(json);
     }
 
+    // KNOWN LIMITATION: for existing catches, only scalar fields are reconciled on restore.
+    // CatchMedia is not diffed/reconciled against the backup for pre-existing catches —
+    // only newly-created catches get their full media list restored. Acceptable for now
+    // since this only matters when restoring an old backup over actively-changing data.
     public async Task<RestoreResultDto> RestoreBackupAsync(BackupDataDto backup)
     {
         var result = new RestoreResultDto();

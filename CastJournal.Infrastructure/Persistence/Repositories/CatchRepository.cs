@@ -152,6 +152,25 @@ public class CatchRepository : ICatchRepository
 
         return (items, totalCount);
     }
+    public async Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, int page, int pageSize)
+    {
+        var query = _context.Catches
+            .Include(c => c.User)
+            .Include(c => c.Species)
+            .Include(c => c.Location)
+            .Include(c => c.Media)
+            .Where(c => c.IsPublic);
+
+        if (!string.IsNullOrWhiteSpace(userId))
+            query = query.Where(c => c.UserId == userId);
+
+        query = query.OrderByDescending(c => c.CatchDate);
+
+        var totalCount = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (items, totalCount);
+    }
     public async Task<List<Catch>> GetForAnalyticsAsync(string userId, DateTime? startDate, DateTime? endDate)
     {
         var query = _context.Catches
@@ -167,5 +186,19 @@ public class CatchRepository : ICatchRepository
             query = query.Where(c => c.CatchDate <= endDate.Value);
 
         return await query.ToListAsync();
+    }
+    public async Task<bool> SpeciesExistsAsync(Guid speciesId)
+    {
+        return await _context.Species.AnyAsync(s => s.Id == speciesId);
+    }
+
+    public async Task<bool> LocationExistsAsync(Guid locationId)
+    {
+        return await _context.FishingLocations.AnyAsync(l => l.Id == locationId);
+    }
+    public async Task<int> CountPublicCatchesByUserIdAsync(string userId)
+    {
+        return await _context.Catches
+            .CountAsync(c => c.UserId == userId && c.IsPublic);
     }
 }

@@ -21,4 +21,8 @@ public interface ICatchRepository
     void DeleteMedia(CatchMedia media);
     Task<(IEnumerable<Catch> Items, int TotalCount)> GetFilteredByUserIdAsync(string userId, CatchFilterDto filter);
     Task<List<Catch>> GetForAnalyticsAsync(string userId, DateTime? startDate, DateTime? endDate);
+    Task<bool> SpeciesExistsAsync(Guid speciesId);
+    Task<bool> LocationExistsAsync(Guid locationId);
+    Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, int page, int pageSize);
+    Task<int> CountPublicCatchesByUserIdAsync(string userId);
 }

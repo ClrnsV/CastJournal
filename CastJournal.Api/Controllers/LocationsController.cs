@@ -31,6 +31,12 @@ public class LocationsController : ControllerBase
         var locations = await _locationService.GetUserLocationsAsync(userId);
         return Ok(locations);
     }
+    [HttpGet("public")]
+    public async Task<ActionResult<IEnumerable<LocationDto>>> GetPublicLocations()
+    {
+        var locations = await _locationService.GetPublicLocationsAsync();
+        return Ok(locations);
+    }
 
     [HttpPost]
     public async Task<ActionResult<LocationDto>> CreateLocation([FromBody] CreateLocationDto dto)

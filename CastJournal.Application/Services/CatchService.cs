@@ -21,13 +21,15 @@ public class CatchService : ICatchService
     private readonly IMapper _mapper;
     private readonly IFileStorageService _fileStorageService;
     private readonly IFollowRepository _followRepository;
+    private readonly ILikeRepository _likeRepository;
 
-    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService, IFollowRepository followRepository)
+    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService, IFollowRepository followRepository, ILikeRepository likeRepository)
     {
         _catchRepository = catchRepository;
         _mapper = mapper;
         _fileStorageService = fileStorageService;
         _followRepository = followRepository;
+        _likeRepository = likeRepository;
     }
 
     public async Task<CatchDto> CreateCatchAsync(CreateCatchDto dto, string userId)
@@ -62,13 +64,20 @@ public class CatchService : ICatchService
         if (catchEntity == null || catchEntity.UserId != userId)
             return null;
 
-        return _mapper.Map<CatchDto>(catchEntity);
+        var dto = _mapper.Map<CatchDto>(catchEntity);
+        dto.LikeCount = await _likeRepository.GetLikeCountAsync(dto.Id);
+
+        return dto;
     }
 
     public async Task<IEnumerable<CatchDto>> GetUserCatchesAsync(string userId)
     {
         var catches = await _catchRepository.GetAllByUserIdAsync(userId);
-        return _mapper.Map<IEnumerable<CatchDto>>(catches);
+        var dtos = _mapper.Map<List<CatchDto>>(catches);
+
+        await PopulateLikeCountsAsync(dtos);
+
+        return dtos;
     }
 
     public async Task<bool> UpdateCatchAsync(Guid id, CreateCatchDto dto, string userId)
@@ -158,15 +167,19 @@ public class CatchService : ICatchService
     public async Task<PagedResult<CatchDto>> SearchCatchesAsync(string userId, CatchFilterDto filter)
     {
         var (items, totalCount) = await _catchRepository.GetFilteredByUserIdAsync(userId, filter);
+        var dtos = _mapper.Map<List<CatchDto>>(items);
+
+        await PopulateLikeCountsAsync(dtos);
 
         return new PagedResult<CatchDto>
         {
-            Items = _mapper.Map<IEnumerable<CatchDto>>(items),
+            Items = dtos,
             TotalCount = totalCount,
             Page = filter.Page ?? 1,
             PageSize = filter.PageSize ?? 20
         };
     }
+
     public async Task<PagedResult<CatchDto>> GetPublicFeedAsync(CatchFeedFilterDto filter, string? currentUserId)
     {
         var page = filter.Page ?? 1;
@@ -177,13 +190,27 @@ public class CatchService : ICatchService
             followingIds = await _followRepository.GetFollowingIdsAsync(currentUserId);
 
         var (items, totalCount) = await _catchRepository.GetPublicFeedAsync(filter.UserId, followingIds, page, pageSize);
+        var dtos = _mapper.Map<List<CatchDto>>(items);
+
+        await PopulateLikeCountsAsync(dtos);
 
         return new PagedResult<CatchDto>
         {
-            Items = _mapper.Map<IEnumerable<CatchDto>>(items),
+            Items = dtos,
             TotalCount = totalCount,
             Page = page,
             PageSize = pageSize
         };
+    }
+
+    // Batch-fetches like counts for a list of DTOs and assigns them in place.
+    // Avoids an N+1 query (one call per catch) by fetching all counts for the page in a single query.
+    private async Task PopulateLikeCountsAsync(List<CatchDto> dtos)
+    {
+        if (dtos.Count == 0) return;
+
+        var likeCounts = await _likeRepository.GetLikeCountsAsync(dtos.Select(d => d.Id));
+        foreach (var dto in dtos)
+            dto.LikeCount = likeCounts.GetValueOrDefault(dto.Id, 0);
     }
 }

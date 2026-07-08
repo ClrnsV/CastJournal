@@ -53,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<IBackupService, BackupService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IFollowService, FollowService>();
+        services.AddScoped<ILikeService, LikeService>();
+
 
         // Repositories
         services.AddScoped<ICatchRepository, CatchRepository>();
@@ -61,6 +63,8 @@ public static class DependencyInjection
         services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
+        services.AddScoped<ILikeRepository, LikeRepository>();
+
 
 
         return services;

@@ -26,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<ContentCategory> ContentCategories { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserFollow> UserFollows { get; set; }
+    public DbSet<CatchLike> CatchLikes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

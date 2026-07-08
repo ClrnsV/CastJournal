@@ -25,6 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<ContentCategory> ContentCategories { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+    public DbSet<UserFollow> UserFollows { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

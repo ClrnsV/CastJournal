@@ -23,6 +23,6 @@ public interface ICatchRepository
     Task<List<Catch>> GetForAnalyticsAsync(string userId, DateTime? startDate, DateTime? endDate);
     Task<bool> SpeciesExistsAsync(Guid speciesId);
     Task<bool> LocationExistsAsync(Guid locationId);
-    Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, int page, int pageSize);
+    Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, List<string>? followingIds, int page, int pageSize);
     Task<int> CountPublicCatchesByUserIdAsync(string userId);
 }

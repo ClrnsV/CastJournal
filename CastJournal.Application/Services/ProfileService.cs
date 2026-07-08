@@ -12,13 +12,16 @@ public class ProfileService : IProfileService
     private readonly UserManager<User> _userManager;
     private readonly IFileStorageService _fileStorageService;
     private readonly ICatchRepository _catchRepository;
+    private readonly IFollowRepository _followRepository;
     private readonly IMapper _mapper;
 
-    public ProfileService(UserManager<User> userManager, IFileStorageService fileStorageService, ICatchRepository catchRepository, IMapper mapper)
+    public ProfileService(UserManager<User> userManager, IFileStorageService fileStorageService,
+     ICatchRepository catchRepository, IFollowRepository followRepository, IMapper mapper)
     {
         _userManager = userManager;
         _fileStorageService = fileStorageService;
         _catchRepository = catchRepository;
+        _followRepository = followRepository;
         _mapper = mapper;
     }
 
@@ -60,13 +63,18 @@ public class ProfileService : IProfileService
 
         return _mapper.Map<ProfileDto>(user);
     }
-    public async Task<PublicProfileDto?> GetPublicProfileAsync(string userId)
+    public async Task<PublicProfileDto?> GetPublicProfileAsync(string userId, string? currentUserId)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return null;
 
         var publicProfile = _mapper.Map<PublicProfileDto>(user);
         publicProfile.PublicCatchCount = await _catchRepository.CountPublicCatchesByUserIdAsync(userId);
+        publicProfile.FollowerCount = await _followRepository.GetFollowerCountAsync(userId);
+        publicProfile.FollowingCount = await _followRepository.GetFollowingCountAsync(userId);
+
+        if (!string.IsNullOrEmpty(currentUserId))
+            publicProfile.IsFollowedByCurrentUser = await _followRepository.ExistsAsync(currentUserId, userId);
 
         return publicProfile;
     }

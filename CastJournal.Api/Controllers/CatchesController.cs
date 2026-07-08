@@ -99,11 +99,11 @@ public class CatchesController : ControllerBase
         var result = await _catchService.SearchCatchesAsync(userId, filter);
         return Ok(result);
     }
-
     [HttpGet("feed")]
     public async Task<ActionResult<PagedResult<CatchDto>>> GetPublicFeed([FromQuery] CatchFeedFilterDto filter)
     {
-        var result = await _catchService.GetPublicFeedAsync(filter);
+        var currentUserId = GetCurrentUserId();
+        var result = await _catchService.GetPublicFeedAsync(filter, currentUserId);
         return Ok(result);
     }
 }

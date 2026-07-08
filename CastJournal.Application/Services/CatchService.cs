@@ -20,12 +20,14 @@ public class CatchService : ICatchService
     private readonly ICatchRepository _catchRepository;
     private readonly IMapper _mapper;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IFollowRepository _followRepository;
 
-    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService)
+    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService, IFollowRepository followRepository)
     {
         _catchRepository = catchRepository;
         _mapper = mapper;
         _fileStorageService = fileStorageService;
+        _followRepository = followRepository;
     }
 
     public async Task<CatchDto> CreateCatchAsync(CreateCatchDto dto, string userId)
@@ -165,12 +167,16 @@ public class CatchService : ICatchService
             PageSize = filter.PageSize ?? 20
         };
     }
-    public async Task<PagedResult<CatchDto>> GetPublicFeedAsync(CatchFeedFilterDto filter)
+    public async Task<PagedResult<CatchDto>> GetPublicFeedAsync(CatchFeedFilterDto filter, string? currentUserId)
     {
         var page = filter.Page ?? 1;
         var pageSize = filter.PageSize ?? 20;
 
-        var(items, totalCount) = await _catchRepository.GetPublicFeedAsync(filter.UserId, page, pageSize);
+        List<string>? followingIds = null;
+        if (filter.FollowingOnly && !string.IsNullOrEmpty(currentUserId))
+            followingIds = await _followRepository.GetFollowingIdsAsync(currentUserId);
+
+        var (items, totalCount) = await _catchRepository.GetPublicFeedAsync(filter.UserId, followingIds, page, pageSize);
 
         return new PagedResult<CatchDto>
         {

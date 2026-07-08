@@ -15,4 +15,7 @@ public class PublicProfileDto
     public string? PreferredFishingMethods { get; set; }
     public DateTime MemberSince { get; set; }
     public int PublicCatchCount { get; set; }
+    public int FollowerCount { get; set; }
+    public int FollowingCount { get; set; }
+    public bool IsFollowedByCurrentUser { get; set; }
 }

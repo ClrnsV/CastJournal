@@ -61,7 +61,8 @@ public class ProfileController : ControllerBase
     [HttpGet("{userId}")]
     public async Task<ActionResult<PublicProfileDto>> GetPublicProfile(string userId)
     {
-        var profile = await _profileService.GetPublicProfileAsync(userId);
+        var currentUserId = GetCurrentUserId();
+        var profile = await _profileService.GetPublicProfileAsync(userId, currentUserId);
         if (profile == null) return NotFound();
 
         return Ok(profile);

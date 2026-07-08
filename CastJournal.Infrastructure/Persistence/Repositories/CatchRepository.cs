@@ -152,7 +152,7 @@ public class CatchRepository : ICatchRepository
 
         return (items, totalCount);
     }
-    public async Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, int page, int pageSize)
+    public async Task<(IEnumerable<Catch> Items, int TotalCount)> GetPublicFeedAsync(string? userId, List<string>? followingIds, int page, int pageSize)
     {
         var query = _context.Catches
             .Include(c => c.User)
@@ -163,6 +163,9 @@ public class CatchRepository : ICatchRepository
 
         if (!string.IsNullOrWhiteSpace(userId))
             query = query.Where(c => c.UserId == userId);
+
+        if (followingIds != null)
+            query = query.Where(c => followingIds.Contains(c.UserId));
 
         query = query.OrderByDescending(c => c.CatchDate);
 

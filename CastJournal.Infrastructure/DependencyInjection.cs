@@ -24,6 +24,7 @@ public static class DependencyInjection
                     maxRetryCount: 5,
                     maxRetryDelay: TimeSpan.FromSeconds(10),
                     errorNumbersToAdd: null)));
+
         // Identity
         services.AddIdentity<User, IdentityRole>(options =>
         {
@@ -35,6 +36,7 @@ public static class DependencyInjection
                 .AddDefaultTokenProviders();
         // JWT Settings
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
         // Services
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ICatchService, CatchService>();
@@ -50,12 +52,17 @@ public static class DependencyInjection
         services.AddScoped<IContentCategoryService, ContentCategoryService>();
         services.AddScoped<IBackupService, BackupService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IFollowService, FollowService>();
+
         // Repositories
         services.AddScoped<ICatchRepository, CatchRepository>();
         services.AddScoped<ISpeciesRepository, SpeciesRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IFollowRepository, FollowRepository>();
+
+
         return services;
     }
 }

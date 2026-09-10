@@ -14,5 +14,8 @@ public enum NotificationType
     SpeciesRejected,
     BackupCompleted,
     DataCleanupCompleted,
-    System
+    System,
+    CatchLiked,
+    NewFollower,
+    NewComment
 }

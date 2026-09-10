@@ -29,6 +29,8 @@ public class AuthController : ControllerBase
     }
 
     // POST: api/auth/register
+    // Need to handle the email uniqueness in registration process to return a proper error message if the email is already in use and cant be registered again before publishing again.
+    //Check daan sa userManager.CreateAsync if naay logic nga the email is already in use and return a proper error message if it is.
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
     {
@@ -91,10 +93,40 @@ public class AuthController : ControllerBase
         return Ok(tokenResponse);
     }
 
-    // POST: api/auth/logout
+    //// POST: api/auth/logout
+    //[HttpPost("logout")]
+    //[Authorize]
+    //public async Task<IActionResult> Logout()
+    //{
+    //    var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
+    //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    //    var email = User.FindFirstValue(ClaimTypes.Email);
+    //    var expClaim = User.FindFirstValue(JwtRegisteredClaimNames.Exp);
+
+    //    if (jti == null || userId == null || expClaim == null)
+    //        return BadRequest("Invalid token.");
+
+    //    var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim)).UtcDateTime;
+    //    await _tokenService.RevokeTokenAsync(jti, userId, expiresAt);
+    //    await _auditService.LogAsync(userId, email, AuditAction.Logout, ipAddress: GetClientIp());
+
+    //    return Ok(new { message = "Logged out successfully." });
+    //}
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshRequestDto dto)
+    {
+        var result = await _tokenService.RefreshTokenAsync(dto.RefreshToken);
+        if (result == null)
+            return Unauthorized("Invalid or expired refresh token. Please log in again.");
+
+        return Ok(result);
+    }
+
+    // POST: api/auth/logout — now accepts the refresh token so it can be revoked too
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromBody] RefreshRequestDto dto)
     {
         var jti = User.FindFirstValue(JwtRegisteredClaimNames.Jti);
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -106,6 +138,10 @@ public class AuthController : ControllerBase
 
         var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim)).UtcDateTime;
         await _tokenService.RevokeTokenAsync(jti, userId, expiresAt);
+
+        if (!string.IsNullOrEmpty(dto?.RefreshToken))
+            await _tokenService.RevokeRefreshTokenAsync(dto.RefreshToken);
+
         await _auditService.LogAsync(userId, email, AuditAction.Logout, ipAddress: GetClientIp());
 
         return Ok(new { message = "Logged out successfully." });

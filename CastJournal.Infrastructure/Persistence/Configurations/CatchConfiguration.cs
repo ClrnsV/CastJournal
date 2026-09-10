@@ -15,6 +15,7 @@ public class CatchConfiguration : IEntityTypeConfiguration<Catch>
         builder.Property(c => c.Weight).HasPrecision(10, 4);
         builder.Property(c => c.Length).HasPrecision(10, 2);
 
+
         // Soft Delete
         builder.Property(c => c.IsDeleted).HasDefaultValue(false);
         builder.HasQueryFilter(c => !c.IsDeleted);
@@ -25,10 +26,13 @@ public class CatchConfiguration : IEntityTypeConfiguration<Catch>
                .HasForeignKey(c => c.UserId)
                .OnDelete(DeleteBehavior.Cascade);
 
+
         builder.HasOne(c => c.Species)
                .WithMany(s => s.Catches)
                .HasForeignKey(c => c.SpeciesId)
                .OnDelete(DeleteBehavior.Restrict);
+
+
 
         builder.HasOne(c => c.Location)
                 .WithMany(l => l.Catches)
@@ -41,5 +45,6 @@ public class CatchConfiguration : IEntityTypeConfiguration<Catch>
                .WithOne(m => m.Catch)
                .HasForeignKey(m => m.CatchId)
                .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

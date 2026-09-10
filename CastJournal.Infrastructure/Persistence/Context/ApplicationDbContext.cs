@@ -27,6 +27,8 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserFollow> UserFollows { get; set; }
     public DbSet<CatchLike> CatchLikes { get; set; }
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Comment> Comments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

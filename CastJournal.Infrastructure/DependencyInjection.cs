@@ -31,6 +31,8 @@ public static class DependencyInjection
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             options.Lockout.AllowedForNewUsers = true;
+
+            options.User.RequireUniqueEmail = true;
         })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -54,6 +56,9 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IFollowService, FollowService>();
         services.AddScoped<ILikeService, LikeService>();
+        services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<ISearchService, SearchService>();
+
 
 
         // Repositories
@@ -61,10 +66,12 @@ public static class DependencyInjection
         services.AddScoped<ISpeciesRepository, SpeciesRepository>();
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
         services.AddScoped<ILikeRepository, LikeRepository>();
-
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<ISearchRepository, SearchRepository>();
 
 
         return services;

@@ -3,8 +3,6 @@ using CastJournal.Domain.Entities;
 using CastJournal.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
-
-
 namespace CastJournal.Infrastructure.Persistence.Repositories;
 public class FollowRepository : IFollowRepository
 {
@@ -57,6 +55,46 @@ public class FollowRepository : IFollowRepository
     {
         return await _context.UserFollows
             .Where(f => f.FollowerId == followerId)
+            .Select(f => f.FollowingId)
+            .ToListAsync();
+    }
+
+    public async Task<(List<User> Users, int TotalCount)> GetFollowersAsync(string userId, int page, int pageSize)
+    {
+        var query = _context.UserFollows
+            .Where(f => f.FollowingId == userId)
+            .OrderByDescending(f => f.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => f.Follower!)
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
+
+    public async Task<(List<User> Users, int TotalCount)> GetFollowingAsync(string userId, int page, int pageSize)
+    {
+        var query = _context.UserFollows
+            .Where(f => f.FollowerId == userId)
+            .OrderByDescending(f => f.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => f.Following!)
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
+
+    public async Task<List<string>> GetFollowingIdsAmongAsync(string currentUserId, List<string> candidateIds)
+    {
+        return await _context.UserFollows
+            .Where(f => f.FollowerId == currentUserId && candidateIds.Contains(f.FollowingId))
             .Select(f => f.FollowingId)
             .ToListAsync();
     }

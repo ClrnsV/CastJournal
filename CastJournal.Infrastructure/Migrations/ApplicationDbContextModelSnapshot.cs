@@ -60,7 +60,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Catch", b =>
@@ -141,7 +141,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Catches");
+                    b.ToTable("Catches", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.CatchLike", b =>
@@ -167,7 +167,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("CatchId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("CatchLikes");
+                    b.ToTable("CatchLikes", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.CatchMedia", b =>
@@ -208,7 +208,40 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("CatchId");
 
-                    b.ToTable("CatchMedia");
+                    b.ToTable("CatchMedia", (string)null);
+                });
+
+            modelBuilder.Entity("CastJournal.Domain.Entities.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CatchId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.ContentCategory", b =>
@@ -248,7 +281,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("Type", "Name")
                         .IsUnique();
 
-                    b.ToTable("ContentCategories");
+                    b.ToTable("ContentCategories", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.FishingLocation", b =>
@@ -309,7 +342,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FishingLocations");
+                    b.ToTable("FishingLocations", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Notification", b =>
@@ -355,7 +388,35 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "IsRead");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("CastJournal.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.RevokedToken", b =>
@@ -384,7 +445,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("Jti")
                         .IsUnique();
 
-                    b.ToTable("RevokedTokens");
+                    b.ToTable("RevokedTokens", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Species", b =>
@@ -429,7 +490,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Species");
+                    b.ToTable("Species", (string)null);
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.User", b =>
@@ -542,7 +603,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("FollowerId", "FollowingId")
                         .IsUnique();
 
-                    b.ToTable("UserFollows");
+                    b.ToTable("UserFollows", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -732,6 +793,25 @@ namespace CastJournal.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Catch");
+                });
+
+            modelBuilder.Entity("CastJournal.Domain.Entities.Comment", b =>
+                {
+                    b.HasOne("CastJournal.Domain.Entities.Catch", "Catch")
+                        .WithMany()
+                        .HasForeignKey("CatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CastJournal.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Catch");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.FishingLocation", b =>

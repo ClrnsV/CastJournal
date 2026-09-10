@@ -47,4 +47,13 @@ public class LikeRepository : ILikeRepository
             .Select(g => new { g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.Key, x => x.Count);
     }
+    public async Task<HashSet<Guid>> GetLikedCatchIdsAsync(IEnumerable<Guid> catchIds, string userId)
+    {
+        var liked = await _context.CatchLikes
+            .Where(l => catchIds.Contains(l.CatchId) && l.UserId == userId)
+            .Select(l => l.CatchId)
+            .ToListAsync();
+
+        return liked.ToHashSet();
+    }
 }

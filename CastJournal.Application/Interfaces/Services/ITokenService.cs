@@ -12,4 +12,6 @@ public interface ITokenService
 {
     Task<AuthResponseDto> GenerateTokenAsync(User user, IList<string> roles);
     Task RevokeTokenAsync(string jti, string userId, DateTime expiresAt);
+    Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken);
+    Task RevokeRefreshTokenAsync(string refreshToken);
 }

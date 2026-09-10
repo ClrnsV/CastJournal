@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CastJournal.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,4 +15,9 @@ public interface IFollowRepository
     Task<int> GetFollowerCountAsync(string userId);
     Task<int> GetFollowingCountAsync(string userId);
     Task<List<string>> GetFollowingIdsAsync(string followerId);
+
+    //Paginated followers/following, plus a batch check for follow status
+    Task<(List<User> Users, int TotalCount)> GetFollowersAsync(string userId, int page, int pageSize);
+    Task<(List<User> Users, int TotalCount)> GetFollowingAsync(string userId, int page, int pageSize);
+    Task<List<string>> GetFollowingIdsAmongAsync(string currentUserId, List<string> candidateIds);
 }

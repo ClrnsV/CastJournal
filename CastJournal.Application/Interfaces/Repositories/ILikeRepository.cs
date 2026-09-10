@@ -12,4 +12,5 @@ public interface ILikeRepository
     Task UnlikeAsync(Guid catchId, string userId);
     Task<int> GetLikeCountAsync(Guid catchId);
     Task<Dictionary<Guid, int>> GetLikeCountsAsync(IEnumerable<Guid> catchIds); // for feed batch mapping
+    Task<HashSet<Guid>> GetLikedCatchIdsAsync(IEnumerable<Guid> catchIds, string userId); 
 }

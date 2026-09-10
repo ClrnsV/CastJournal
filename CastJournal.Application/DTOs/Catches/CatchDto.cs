@@ -28,5 +28,6 @@ public class CatchDto
     public bool IsPublic { get; set; }
     public DateTime CreatedAt { get; set; }
     public int LikeCount { get; set; }
+    public bool IsLikedByCurrentUser { get; set; }
     public List<CatchMediaDto> Media { get; set; } = new();
 }

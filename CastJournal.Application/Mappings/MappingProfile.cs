@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using CastJournal.Application.DTOs;
 using CastJournal.Application.DTOs.Catches;
+using CastJournal.Application.DTOs.Comments;
+using CastJournal.Application.DTOs.Follow;
 using CastJournal.Application.DTOs.Locations;
 using CastJournal.Application.DTOs.Notifications;
 using CastJournal.Application.DTOs.Profile;
+using CastJournal.Application.DTOs.Search;
 using CastJournal.Application.DTOs.Species;
 using CastJournal.Domain.Entities;
 using System;
@@ -55,7 +58,16 @@ public class MappingProfile : Profile
         // Notification Mappings
         CreateMap<Notification, NotificationDto>();
 
+        // Follow Mappings
+        CreateMap<User, FollowUserDto>();
 
+        // Comment Mappings
+        CreateMap<Comment, CommentDto>()
+            .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
+            .ForMember(dest => dest.UserAvatarUrl, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarUrl : null));
+
+        // Search Mappings
+        CreateMap<User, UserSearchResultDto>();
         // Add more mappings when creating more DTOs laterrr
     }
 }

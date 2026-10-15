@@ -15,14 +15,16 @@ public class SearchService : ISearchService
     private readonly ISearchRepository _searchRepository;
     private readonly IFollowRepository _followRepository;
     private readonly ILikeRepository _likeRepository;
+    private readonly ICommentRepository _commentRepository;   // NEW
     private readonly IMapper _mapper;
 
     public SearchService(ISearchRepository searchRepository, IFollowRepository followRepository,
-        ILikeRepository likeRepository, IMapper mapper)
+        ILikeRepository likeRepository, ICommentRepository commentRepository, IMapper mapper)
     {
         _searchRepository = searchRepository;
         _followRepository = followRepository;
         _likeRepository = likeRepository;
+        _commentRepository = commentRepository;
         _mapper = mapper;
     }
 
@@ -85,6 +87,10 @@ public class SearchService : ISearchService
         var likeCounts = await _likeRepository.GetLikeCountsAsync(catchIds);
         foreach (var dto in dtos)
             dto.LikeCount = likeCounts.GetValueOrDefault(dto.Id, 0);
+
+        var commentCounts = await _commentRepository.GetCommentCountsAsync(catchIds);
+        foreach (var dto in dtos)
+            dto.CommentCount = commentCounts.GetValueOrDefault(dto.Id, 0);  
 
         if (string.IsNullOrEmpty(currentUserId)) return;
 

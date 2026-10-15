@@ -22,14 +22,16 @@ public class CatchService : ICatchService
     private readonly IFileStorageService _fileStorageService;
     private readonly IFollowRepository _followRepository;
     private readonly ILikeRepository _likeRepository;
+    private readonly ICommentRepository _commentRepository;
 
-    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService, IFollowRepository followRepository, ILikeRepository likeRepository)
+    public CatchService(ICatchRepository catchRepository, IMapper mapper, IFileStorageService fileStorageService, IFollowRepository followRepository, ILikeRepository likeRepository, ICommentRepository commentRepository)
     {
         _catchRepository = catchRepository;
         _mapper = mapper;
         _fileStorageService = fileStorageService;
         _followRepository = followRepository;
         _likeRepository = likeRepository;
+        _commentRepository = commentRepository;
     }
 
     public async Task<CatchDto> CreateCatchAsync(CreateCatchDto dto, string userId)
@@ -65,6 +67,8 @@ public class CatchService : ICatchService
 
         var dto = _mapper.Map<CatchDto>(catchEntity);
         dto.LikeCount = await _likeRepository.GetLikeCountAsync(dto.Id);
+        var commentCounts = await _commentRepository.GetCommentCountsAsync(new[] { dto.Id }); 
+        dto.CommentCount = commentCounts.GetValueOrDefault(dto.Id, 0);
         dto.IsLikedByCurrentUser = await _likeRepository.ExistsAsync(dto.Id, userId); 
 
         return dto;
@@ -202,6 +206,10 @@ public class CatchService : ICatchService
         var likeCounts = await _likeRepository.GetLikeCountsAsync(catchIds);
         foreach (var dto in dtos)
             dto.LikeCount = likeCounts.GetValueOrDefault(dto.Id, 0);
+
+        var commentCounts = await _commentRepository.GetCommentCountsAsync(catchIds);
+        foreach (var dto in dtos)
+            dto.CommentCount = commentCounts.GetValueOrDefault(dto.Id, 0);
 
         if (string.IsNullOrEmpty(currentUserId)) return;
 

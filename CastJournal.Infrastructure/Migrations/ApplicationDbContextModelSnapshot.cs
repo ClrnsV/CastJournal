@@ -60,7 +60,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Catch", b =>
@@ -141,7 +141,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Catches", (string)null);
+                    b.ToTable("Catches");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.CatchLike", b =>
@@ -167,7 +167,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("CatchId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("CatchLikes", (string)null);
+                    b.ToTable("CatchLikes");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.CatchMedia", b =>
@@ -208,7 +208,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("CatchId");
 
-                    b.ToTable("CatchMedia", (string)null);
+                    b.ToTable("CatchMedia");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Comment", b =>
@@ -241,7 +241,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.ContentCategory", b =>
@@ -281,7 +281,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("Type", "Name")
                         .IsUnique();
 
-                    b.ToTable("ContentCategories", (string)null);
+                    b.ToTable("ContentCategories");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.FishingLocation", b =>
@@ -342,7 +342,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FishingLocations", (string)null);
+                    b.ToTable("FishingLocations");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Notification", b =>
@@ -388,7 +388,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "IsRead");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.RefreshToken", b =>
@@ -416,7 +416,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.RevokedToken", b =>
@@ -445,7 +445,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("Jti")
                         .IsUnique();
 
-                    b.ToTable("RevokedTokens", (string)null);
+                    b.ToTable("RevokedTokens");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.Species", b =>
@@ -490,7 +490,7 @@ namespace CastJournal.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Species", (string)null);
+                    b.ToTable("Species");
                 });
 
             modelBuilder.Entity("CastJournal.Domain.Entities.User", b =>
@@ -522,6 +522,9 @@ namespace CastJournal.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
@@ -603,7 +606,7 @@ namespace CastJournal.Infrastructure.Migrations
                     b.HasIndex("FollowerId", "FollowingId")
                         .IsUnique();
 
-                    b.ToTable("UserFollows", (string)null);
+                    b.ToTable("UserFollows");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

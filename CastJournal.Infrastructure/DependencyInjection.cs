@@ -38,6 +38,9 @@ public static class DependencyInjection
                 .AddDefaultTokenProviders();
         // JWT Settings
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));   
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.AddHttpClient<IEmailService, BrevoEmailService>();
 
         // Services
         services.AddScoped<ITokenService, TokenService>();
